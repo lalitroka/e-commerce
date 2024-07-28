@@ -8,13 +8,9 @@ import 'package:myshop/screen/dashboard.dart';
 import 'package:myshop/service/provider.dart';
 import 'package:provider/provider.dart';
 
-void main() {
-  MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => ProductProvider()),
-      ],
-      child: const MyApp(),
-  );
+void main() async {
+  runApp(const MyApp());
+  // );
 }
 
 class MyApp extends StatefulWidget {
@@ -27,20 +23,25 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        dialogBackgroundColor: const Color.fromARGB(255, 134, 67, 241),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ProductProvider()),
+      ],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          dialogBackgroundColor: const Color.fromARGB(255, 134, 67, 241),
+        ),
+        initialRoute: '/loginpage',
+        routes: {
+          '/loginpage': (context) => const LogInPage(),
+          '/registerpage': (context) => const Register(),
+          '/DashBoard': (context) => const DashBoard(),
+          '/productviewpage': (context) => const ProductViewPage(),
+          '/personalinfopage': (context) => const PersonalInfoPage(),
+          '/categorypage': (context) => const CategoryPage(),
+        },
       ),
-      initialRoute: '/loginpage',
-      routes: {
-        '/loginpage': (context) => const LogInPage(),
-        '/registerpage': (context) => const Register(),
-        '/DashBoard': (context) => const DashBoard(),
-        '/productviewpage': (context) => const ProductViewPage(),
-        '/personalinfopage':(context) =>  const PersonalInfoPage(),
-        '/categorypage':(context) => const CategoryPage(),
-      },
     );
   }
 }

@@ -1,24 +1,19 @@
 import 'dart:convert';
-
 import 'package:http/http.dart' as http;
 
 class ProductApi {
   Future<List<Products>?> fetchProducts() async {
-    final response =
-        await http.get(Uri.parse('https://fakestoreapi.in/api/products'));
+    final response = await http.get(Uri.parse('https://fakestoreapi.in/api/products'));
 
     if (response.statusCode == 200) {
-      final jsondecodevalue = jsonDecode(response.body);
-      List productList = jsondecodevalue['products'];
-      List<Products> productdatalist = productList
-          .map(
-            (e) => Products.fromJson(e),
-          )
-          .toList();
-
-      return productdatalist;
+      final jsonDecodeValue = jsonDecode(response.body);
+        List productList = jsonDecodeValue['products'];
+        List<Products> productDataList = productList
+            .map((e) => Products.fromJson(e))
+            .toList();
+        return productDataList;
     } else {
-      throw Exception('failed to load product');
+      throw Exception('Failed to load products');
     }
   }
 }
@@ -56,7 +51,7 @@ class Products {
   int? id;
   String? title;
   String? image;
-  int? price;
+  double? price;
   String? description;
   String? brand;
   String? model;
@@ -84,7 +79,7 @@ class Products {
     id = json['id'];
     title = json['title'];
     image = json['image'];
-    price = json['price'];
+    price = (json['price'] is int) ? (json['price'] as int).toDouble() : json['price'];
     description = json['description'];
     brand = json['brand'];
     model = json['model'];

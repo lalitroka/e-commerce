@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:myshop/model/productmodel.dart';
+import 'package:myshop/service/api/product_model.dart';
 
 class ProductViewPage extends StatefulWidget {
   const ProductViewPage({super.key});
@@ -13,8 +13,8 @@ class _ProductViewPageState extends State<ProductViewPage> {
   int count = 0;
   @override
   Widget build(BuildContext context) {
-    final ProductModel productitem =
-        ModalRoute.of(context)!.settings.arguments as ProductModel;
+    final Products productitem =
+       ModalRoute.of(context)!.settings.arguments as Products;
     return Scaffold(
         appBar: AppBar(
           actions: [
@@ -62,7 +62,7 @@ class _ProductViewPageState extends State<ProductViewPage> {
                 width: double.infinity,
                 height: 300,
                 child: Image(
-                  image: AssetImage(productitem.imageUrl),
+                  image: AssetImage(productitem.image!),
                   fit: BoxFit.cover,
                 ),
               ),
@@ -73,7 +73,7 @@ class _ProductViewPageState extends State<ProductViewPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    productitem.name,
+                    productitem.title!,
                     style: const TextStyle(
                       fontFamily: 'oswald',
                       fontSize: 30,
@@ -112,7 +112,7 @@ class _ProductViewPageState extends State<ProductViewPage> {
                           onPressed: () {
                             setState(() {
                                count++;
-                              value += productitem.price.toInt();
+                              value += productitem.price!.toInt();
                              
                             });
                           },
@@ -125,7 +125,7 @@ class _ProductViewPageState extends State<ProductViewPage> {
                             setState(() {
                               if (count > 0) {
                                  count--;
-                                value -= productitem.price.toInt();
+                                value -= productitem.price!.toInt();
                               }
                             });
                           },
@@ -141,7 +141,7 @@ class _ProductViewPageState extends State<ProductViewPage> {
                 height: 20,
               ),
               Text(
-                'StockQuantity: ${productitem.stockQuantity.toString()}',
+                'StockQuantity: ${productitem.onSale}',
                 style: const TextStyle(
                   fontFamily: 'Raleway',
                   fontSize: 20,
@@ -161,7 +161,7 @@ class _ProductViewPageState extends State<ProductViewPage> {
                 height: 10,
               ),
               Text(
-                productitem.description,
+                productitem.description!,
                 style: const TextStyle(
                     fontFamily: 'montserrat',
                     fontSize: 17,

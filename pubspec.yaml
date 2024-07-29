@@ -40,6 +40,10 @@ dependencies:
   provider: ^6.1.2
   http: ^1.2.2
   cached_network_image: ^3.3.1
+  sqflite: ^2.3.3+1
+  path: ^1.9.0
+  firebase_core: ^2.24.2
+  firebase_auth: ^4.16.0
 
 dev_dependencies:
   flutter_test:

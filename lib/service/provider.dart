@@ -18,11 +18,12 @@ class ProductProvider extends ChangeNotifier {
       final fetchedProducts = await productApi.fetchProducts();
       if (fetchedProducts != null) {
         products = fetchedProducts;
-        // log('Fetched products: ${products.map((a) => a.title).toList()}');
+        log('Fetched products: ${products.map((a) => a.title).toList()}');
       }
     } catch (e) {
       log('Error fetching products: $e', error: e);
     } finally {
+      // log('fetch is sucessfull');
       isLoading = false;
       notifyListeners();
     }

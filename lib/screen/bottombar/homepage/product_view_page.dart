@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:myshop/service/api/product_model.dart';
 
@@ -14,7 +15,7 @@ class _ProductViewPageState extends State<ProductViewPage> {
   @override
   Widget build(BuildContext context) {
     final Products productitem =
-       ModalRoute.of(context)!.settings.arguments as Products;
+        ModalRoute.of(context)!.settings.arguments as Products;
     return Scaffold(
         appBar: AppBar(
           actions: [
@@ -61,44 +62,66 @@ class _ProductViewPageState extends State<ProductViewPage> {
               SizedBox(
                 width: double.infinity,
                 height: 300,
-                child: Image(
-                  image: AssetImage(productitem.image!),
-                  fit: BoxFit.cover,
+                child: CachedNetworkImage(
+                  imageUrl: productitem.image!,
+                  placeholder: (context, url) =>
+                      const CircularProgressIndicator(),
+                  errorWidget: (context, url, error) => const Icon(Icons.error),
                 ),
               ),
               const SizedBox(
                 height: 30,
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    productitem.title!,
-                    style: const TextStyle(
-                      fontFamily: 'oswald',
-                      fontSize: 30,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  Container(
-                      padding: const EdgeInsets.all(5),
-                      decoration: BoxDecoration(
-                          color: Colors.cyan[100], shape: BoxShape.circle),
-                      child: const Icon(
-                        Icons.favorite_border_outlined,
-                        size: 36,
-                      ))
-                ],
+              Text(
+                productitem.title!,
+                style: const TextStyle(
+                  fontFamily: 'oswald',
+                  fontSize: 20,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(
+                height: 5,
+              ),
+              Text(
+                'Model: ${productitem.model!}',
+                style: const TextStyle(
+                  fontFamily: 'oswald',
+                  fontSize: 20,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(
+                height: 5,
+              ),
+              Text(
+                'Brand : ${productitem.brand!}',
+                style: const TextStyle(
+                  fontFamily: 'oswald',
+                  fontSize: 20,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(
+                height: 5,
+              ),
+              Text(
+                'Color: ${productitem.color!}',
+                style: const TextStyle(
+                  fontFamily: 'oswald',
+                  fontSize: 20,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
 
               const SizedBox(
-                height: 20,
+                height: 15,
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    productitem.price.toString(),
+                    ''' Rs.${productitem.price.toString()}''',
                     style: const TextStyle(
                       fontFamily: 'oswald',
                       fontSize: 20,
@@ -111,9 +134,8 @@ class _ProductViewPageState extends State<ProductViewPage> {
                         IconButton(
                           onPressed: () {
                             setState(() {
-                               count++;
+                              count++;
                               value += productitem.price!.toInt();
-                             
                             });
                           },
                           icon: const Icon(Icons.remove),
@@ -124,7 +146,7 @@ class _ProductViewPageState extends State<ProductViewPage> {
                           onPressed: () {
                             setState(() {
                               if (count > 0) {
-                                 count--;
+                                count--;
                                 value -= productitem.price!.toInt();
                               }
                             });
@@ -137,16 +159,7 @@ class _ProductViewPageState extends State<ProductViewPage> {
                   )
                 ],
               ),
-              const SizedBox(
-                height: 20,
-              ),
-              Text(
-                'StockQuantity: ${productitem.onSale}',
-                style: const TextStyle(
-                  fontFamily: 'Raleway',
-                  fontSize: 20,
-                ),
-              ),
+
               const SizedBox(
                 height: 20,
               ),
@@ -170,69 +183,7 @@ class _ProductViewPageState extends State<ProductViewPage> {
               const SizedBox(
                 height: 10,
               ),
-              const Text(
-                'Color',
-                style: TextStyle(
-                  fontFamily: 'oswald',
-                  fontSize: 20,
-                ),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Container(
-                    height: 40,
-                    width: 40,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.red,
-                    ),
-                  ),
-                  Container(
-                    height: 40,
-                    width: 40,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.blue,
-                    ),
-                  ),
-                  Container(
-                    height: 40,
-                    width: 40,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.blue[400],
-                    ),
-                  ),
-                  Container(
-                    height: 40,
-                    width: 40,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.grey[400],
-                    ),
-                  ),
-                  Container(
-                    height: 40,
-                    width: 40,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.black,
-                    ),
-                  ),
-                  Container(
-                    height: 40,
-                    width: 40,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white,
-                    ),
-                  ),
-                ],
-              ),
+
               const SizedBox(
                 height: 16,
               ),

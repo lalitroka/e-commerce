@@ -1,8 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:myshop/model/categorymodel.dart';
 import 'package:myshop/model/advertisemodel.dart';
+import 'package:myshop/model/product_fav_model.dart';
 import 'package:myshop/screen/bottombar/homepage/homewidth.dart';
+import 'package:myshop/service/database_service.dart';
 import 'package:myshop/service/provider.dart'; // Import corrected
 import 'package:provider/provider.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
@@ -18,14 +19,22 @@ class _HomepageState extends State<Homepage> {
   final PageController _pageController = PageController();
   final TextEditingController _searchController = TextEditingController();
 
-  void _handleSearch() {
-    //
+ void _handleSearch() {
+  final String query = _searchController.text.trim();
+  if (query.isNotEmpty) {
+    Navigator.pushNamed(
+      context,
+      '/categorypage',
+      arguments: query.trim(),
+    );
   }
+}
+
 
   @override
   void dispose() {
     _pageController.dispose();
-    _searchController.dispose(); 
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -90,7 +99,7 @@ class _HomepageState extends State<Homepage> {
                         child: const Text('For You'),
                       ),
                       const SizedBox(height: 10),
-                      foryoutsection(),
+                      foryousection(),
                     ],
                   ),
                 ),
@@ -105,31 +114,21 @@ class _HomepageState extends State<Homepage> {
       ),
     );
   }
-Padding foryoutsection() {
+
+  Padding foryousection() {
     return Padding(
       padding: const EdgeInsets.all(5),
       child: Consumer<ProductProvider>(
-        builder: (BuildContext context, productProvider, Widget? child) {
-          if (productProvider.isLoading) {
+        builder: (BuildContext __, productvalueprovider, Widget? _) {
+          if (productvalueprovider.isLoading) {
             return const Center(child: CircularProgressIndicator());
-          } else if (productProvider.products.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text("Failed to load products"),
-                  TextButton(
-                    onPressed: () => productProvider.fetchingProduct(),
-                    child: const Text("Retry"),
-                  ),
-                ],
-              ),
-            );
+          } else if (productvalueprovider.products.isEmpty) {
+            return const Center(child: Text("No Product found"));
           } else {
             return GridView.builder(
               physics: const NeverScrollableScrollPhysics(),
               shrinkWrap: true,
-              itemCount: productProvider.products.length,
+              itemCount: productvalueprovider.products.length,
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
                 mainAxisSpacing: 10,
@@ -137,15 +136,11 @@ Padding foryoutsection() {
                 childAspectRatio: 0.75,
               ),
               itemBuilder: (context, index) {
-                final productItem = productProvider.products[index];
-                print( productItem.title);
+                final productitem = productvalueprovider.products[index];
                 return GestureDetector(
                   onTap: () {
-                    Navigator.pushNamed(
-                      context,
-                      '/productviewpage',
-                      arguments: productItem,
-                    );
+                    Navigator.pushNamed(context, '/productviewpage',
+                        arguments: productitem);
                   },
                   child: Container(
                     color: Colors.cyan[50],
@@ -161,39 +156,62 @@ Padding foryoutsection() {
                                 height: 180,
                                 width: double.infinity,
                                 child: CachedNetworkImage(
-                      imageUrl: productItem.image!,
-                 placeholder: (context, url) => const CircularProgressIndicator(),
-                  errorWidget: (context, url, error) => const Icon(Icons.error), 
-                ),
+                                  imageUrl: productitem.image!,
+                                  placeholder: (context, url) =>
+                                      const CircularProgressIndicator(),
+                                  errorWidget: (context, url, error) =>
+                                      const Icon(Icons.error),
+                                  fit: BoxFit.cover,
+                                ),
                               ),
                             ),
-                            const Positioned(
+                            if (productitem.discount != null)
+                              Positioned(
+                                top: 7,
+                                left: 5,
+                                child: Container(
+                                  padding: const EdgeInsets.all(5),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(25),
+                                    color: Colors.cyan[50],
+                                  ),
+                                  child: Text(
+                                    '${productitem.discount!.toString()}% Off',
+                                    style: const TextStyle(color: Colors.red),
+                                  ),
+                                ),
+                              ),
+                            Positioned(
                               top: 10,
                               right: 10,
-                              child: Icon(
-                                Icons.shopping_bag_outlined,
-                                color: Colors.white,
-                              ),
-                            ),
-                            const Positioned(
-                              top: 10,
-                              left: 10,
-                              child: Icon(
-                                Icons.favorite_border_outlined,
-                                color: Colors.white,
+                              child: InkWell(
+                                onTap: () async {
+                                  final data = ProductFavModel(
+                                    id: index,
+                                    title: productitem.title.toString(),
+                                    description:
+                                        productitem.description.toString(),
+                                    discount: productitem.discount.toString(),
+                                    image: productitem.image.toString(),
+                                    price: productitem.price.toString(),
+                                  );
+
+                                  await DatabaseService().insertProduct(data);
+                                },
+                                child:
+                                    const Icon(Icons.favorite_border_outlined),
                               ),
                             ),
                           ],
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          productItem.title ?? '', 
+                          '${productitem.title}',
                           style: const TextStyle(fontWeight: FontWeight.bold),
                           overflow: TextOverflow.ellipsis,
                         ),
                         Text(
-                          productItem.price?.toString() ??
-                              'N/A', 
+                          productitem.price.toString(),
                           style: const TextStyle(color: Colors.green),
                         ),
                       ],
@@ -227,7 +245,9 @@ Padding foryoutsection() {
                 ),
                 TextButton(
                   onPressed: () {
-                    Navigator.pushNamed(context, '/categorypage');
+                    Navigator.pushNamed(context, '/categorypage',
+                    arguments: 
+                     'All');
                   },
                   child: const Text(
                     'SEE ALL',
@@ -237,40 +257,70 @@ Padding foryoutsection() {
               ],
             ),
             Expanded(
-              child: ListView.separated(
-                separatorBuilder: (context, index) {
-                  return const SizedBox(width: 10);
-                },
-                itemCount: categoryList.length,
-                scrollDirection: Axis.horizontal,
-                itemBuilder: (context, index) {
-                  final categoryItem = categoryList[index];
-                  return SizedBox(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: Image.asset(
-                            categoryItem.image,
-                            width: 80,
-                            height: 90,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                        const SizedBox(height: 3),
-                        Text(
-                          categoryItem.name,
-                          textAlign: TextAlign.center,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontSize: 12),
-                        ),
-                      ],
+      child: Consumer<ProductProvider>(
+  builder: (BuildContext context, categoryvalue, Widget? child) {
+    if (categoryvalue.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    } else if (categoryvalue.products.isEmpty) {
+      return const Center(child: Text("No Product found"));
+    } else {
+      final Set<String> uniqueCategoryNames = {};
+      final uniqueCategoryProducts = categoryvalue.products.where((product) {
+        final isUnique = uniqueCategoryNames.add(product.category!);
+        return isUnique;
+      }).toList();
+
+      return ListView.separated(
+        separatorBuilder: (context, index) {
+          return const SizedBox(width: 10);
+        },
+        itemCount: uniqueCategoryProducts.length,
+        scrollDirection: Axis.horizontal,
+        itemBuilder: (context, index) {
+          final categoryItem = uniqueCategoryProducts[index];
+          return GestureDetector(
+            onTap: () {
+              Navigator.pushNamed(
+                context,
+                '/categorypage', // Adjust route name if needed
+                arguments: categoryItem.category,
+              );
+            },
+            child: SizedBox(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: CachedNetworkImage(
+                      imageUrl: categoryItem.image!,
+                      placeholder: (context, url) =>
+                          const CircularProgressIndicator(),
+                      errorWidget: (context, url, error) =>
+                          const Icon(Icons.error),
+                      height: 80,
+                      width: 80,
+                      fit: BoxFit.cover,
                     ),
-                  );
-                },
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    categoryItem.category!,
+                    textAlign: TextAlign.center,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontSize: 12),
+                  ),
+                ],
               ),
             ),
+          );
+        },
+      );
+    }
+  },
+),
+            ),
+
           ],
         ),
       ),

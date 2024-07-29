@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class Register extends StatefulWidget {
@@ -15,11 +16,11 @@ class _RegisterState extends State<Register> {
   final TextEditingController _countryController =
       TextEditingController(text: 'Nepal');
   final TextEditingController _emailController =
-      TextEditingController(text: 'cimex@535gmail.com');
+      TextEditingController(text: 'cimex55@gmail.com');
   final TextEditingController _phoneNumberController =
       TextEditingController(text: '9899999999');
   final TextEditingController _passwordController =
-      TextEditingController(text: 'Pass@334fdf');
+      TextEditingController(text: 'Pass@2222');
   final _formkey = GlobalKey<FormState>();
   String? _selectGender;
   bool isCheck = false;
@@ -279,7 +280,7 @@ class _RegisterState extends State<Register> {
                       },
                       decoration: InputDecoration(
                         labelText: 'Enter your Password ',
-                        prefixIcon:  const Icon(Icons.lock),
+                        prefixIcon: const Icon(Icons.lock),
                         suffixIcon: IconButton(
                           icon: Icon(
                             _obscureText
@@ -289,7 +290,7 @@ class _RegisterState extends State<Register> {
                           ),
                           onPressed: _tooglePasswordVisibility,
                         ),
-                        border: const  OutlineInputBorder(
+                        border: const OutlineInputBorder(
                           borderRadius: BorderRadius.all(Radius.circular(10)),
                         ),
                         enabledBorder: const OutlineInputBorder(
@@ -302,11 +303,9 @@ class _RegisterState extends State<Register> {
                         focusColor: Colors.amberAccent,
                       ),
                     ),
-                    
                     const SizedBox(
                       height: 10,
                     ),
-
                     Row(
                       children: [
                         Checkbox(
@@ -326,11 +325,22 @@ class _RegisterState extends State<Register> {
                     ElevatedButton(
                       onPressed: () {
                         if (_formkey.currentState!.validate() && isCheck) {
-                          Navigator.pushNamed(context, '/DashBoard');
-                          _formkey.currentState!.save();
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Form is valid!')),
+                          FirebaseAuth.instance
+                              .createUserWithEmailAndPassword(
+                                  email: _emailController.text,
+                                  password: _passwordController.text)
+                              .then((value) {
+                          const   Text('Created New Account');
+                            Navigator.pushNamed(context, '/DashBoard');
+                          }).onError(
+                            (error, stackTrace) {
+                              Text(error.toString());
+                            },
                           );
+                          // _formkey.currentState!.save();
+                          // ScaffoldMessenger.of(context).showSnackBar(
+                          //   const SnackBar(content: Text('Form is valid')),
+                          // );
                         } else if (!isCheck) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(

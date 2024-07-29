@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class LogInPage extends StatefulWidget {
@@ -8,11 +9,19 @@ class LogInPage extends StatefulWidget {
 }
 
 class _LogInPageState extends State<LogInPage> {
-  final TextEditingController _phoneNumberController =
-      TextEditingController(text: '9899999999');
+  final TextEditingController _emailController =
+      TextEditingController(text: 'cimex55@gmail.com');
   final TextEditingController _passwordController =
-      TextEditingController(text: 'Laly#24#4gffg');
+      TextEditingController(text: 'Pass@2222');
   final _formKey = GlobalKey<FormState>();
+  bool _obscureText = true;
+
+
+  void _tooglePasswordVisibility() {
+    setState(() {
+      _obscureText = !_obscureText;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,30 +64,26 @@ class _LogInPageState extends State<LogInPage> {
                           color: Colors.black54),
                     ),
                   ),
-                 const  SizedBox(
+                  const SizedBox(
                     height: 40,
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 40, vertical: 20),
                     child: TextFormField(
-                      controller: _phoneNumberController,
+                      controller: _emailController,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter Phone Number';
+                          return 'Please enter your email';
                         }
-                        if (!RegExp(r'^[0-9]+$').hasMatch(value)) {
-                          return 'Should only contain digits';
-                        } else if (!value.startsWith('97') &&
-                            !value.startsWith('98')) {
-                          return 'Phone number should start with 97 or 98';
-                        } else if (value.length != 10) {
-                          return 'Digit should be only 10 number';
+                        if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                          return 'Enter a valid email address';
                         }
                         return null;
                       },
                       decoration: const InputDecoration(
-                        labelText: 'Enter your Phone Number',
+                        prefixIcon: Icon(Icons.email),
+                        labelText: 'Enter your email ',
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.all(Radius.circular(25)),
                         ),
@@ -96,6 +101,7 @@ class _LogInPageState extends State<LogInPage> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 40),
                     child: TextFormField(
+                      obscureText: _obscureText,
                       controller: _passwordController,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -114,12 +120,21 @@ class _LogInPageState extends State<LogInPage> {
                         }
                         return null;
                       },
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
+                        prefixIcon: const Icon(Icons.lock),
+                        suffixIcon: IconButton(
+                            onPressed: _tooglePasswordVisibility,
+                            icon: Icon(
+                              _obscureText
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                              color: Colors.grey,
+                            )),
                         labelText: 'Enter your Password',
-                        border: OutlineInputBorder(
+                        border: const OutlineInputBorder(
                           borderRadius: BorderRadius.all(Radius.circular(25)),
                         ),
-                        enabledBorder: OutlineInputBorder(
+                        enabledBorder: const OutlineInputBorder(
                           borderRadius: BorderRadius.all(Radius.circular(25)),
                           borderSide: BorderSide(
                             width: 2,
@@ -138,9 +153,29 @@ class _LogInPageState extends State<LogInPage> {
                         borderRadius: BorderRadius.circular(15),
                       ),
                       child: ElevatedButton(
-                        onPressed: () {
+                        onPressed: () async {
                           if (_formKey.currentState!.validate()) {
-                            Navigator.pushNamed(context, '/DashBoard');
+                            try {
+                              await FirebaseAuth.instance
+                                  .signInWithEmailAndPassword(
+                                      email: _emailController.text,
+                                      password: _passwordController.text)
+                                  .then((value) {
+                                Navigator.pushNamed(context, '/dashboardpage');
+                              });
+                            } on FirebaseAuthException catch (e) {
+                              String errorMessage = 'An error occured';
+                              if (e.code == 'user-not-found') {
+                                errorMessage = "now User found of that emaik";
+                              } else if (e.code == 'wrong-password') {
+                                errorMessage = 'incorrect password';
+                              } else if (e.code == 'invalid-email') {
+                                errorMessage = "incorrect email";
+                              } 
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text(errorMessage))
+                              );
+                            }
                           }
                         },
                         child: const Text('LogIn'),
@@ -235,7 +270,7 @@ class _LogInPageState extends State<LogInPage> {
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 70),
                                     child: TextFormField(
-                                      controller: _phoneNumberController,
+                                      controller: _emailController,
                                       validator: (value) {
                                         if (value == null || value.isEmpty) {
                                           return 'Please Enter your phone number';
@@ -251,6 +286,7 @@ class _LogInPageState extends State<LogInPage> {
                                         return null;
                                       },
                                       decoration: const InputDecoration(
+                                        prefixIcon: Icon(Icons.email_rounded),
                                         hintText: 'Enter your user id / email',
                                         border: OutlineInputBorder(
                                           borderRadius: BorderRadius.all(
@@ -295,13 +331,23 @@ class _LogInPageState extends State<LogInPage> {
                                         }
                                         return null;
                                       },
-                                      decoration: const InputDecoration(
+                                      decoration: InputDecoration(
+                                        prefixIcon: const Icon(Icons.lock),
+                                        suffixIcon: IconButton(
+                                          icon: Icon(
+                                            _obscureText
+                                                ? Icons.visibility
+                                                : Icons.visibility_off,
+                                            color: Colors.grey,
+                                          ),
+                                          onPressed: _tooglePasswordVisibility,
+                                        ),
                                         hintText: 'Enter your password',
-                                        border: OutlineInputBorder(
+                                        border: const OutlineInputBorder(
                                           borderRadius: BorderRadius.all(
                                               Radius.circular(25)),
                                         ),
-                                        enabledBorder: OutlineInputBorder(
+                                        enabledBorder: const OutlineInputBorder(
                                           borderRadius: BorderRadius.all(
                                               Radius.circular(25)),
                                           borderSide: BorderSide(

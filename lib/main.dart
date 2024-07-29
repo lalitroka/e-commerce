@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:myshop/auth/login.dart';
 import 'package:myshop/auth/register.dart';
@@ -9,8 +10,10 @@ import 'package:myshop/service/provider.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(const MyApp());
-  // );
+  
 }
 
 class MyApp extends StatefulWidget {
@@ -36,7 +39,7 @@ class _MyAppState extends State<MyApp> {
         routes: {
           '/loginpage': (context) => const LogInPage(),
           '/registerpage': (context) => const Register(),
-          '/DashBoard': (context) => const DashBoard(),
+          '/dashboardpage': (context) => const DashBoard(),
           '/productviewpage': (context) => const ProductViewPage(),
           '/personalinfopage': (context) => const PersonalInfoPage(),
           '/categorypage': (context) => const CategoryPage(),

@@ -1,5 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:myshop/service/provider.dart';
+import 'package:provider/provider.dart';
 
 class Register extends StatefulWidget {
   const Register({super.key});
@@ -21,6 +24,16 @@ class _RegisterState extends State<Register> {
       TextEditingController(text: '9899999999');
   final TextEditingController _passwordController =
       TextEditingController(text: 'Pass@2222');
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // ignore: unused_local_variable
+      final userProvider = Provider.of<ProductProvider>(context, listen: false);
+    });
+  }
+
   final _formkey = GlobalKey<FormState>();
   String? _selectGender;
   bool isCheck = false;
@@ -327,26 +340,40 @@ class _RegisterState extends State<Register> {
                         if (_formkey.currentState!.validate() && isCheck) {
                           FirebaseAuth.instance
                               .createUserWithEmailAndPassword(
-                                  email: _emailController.text,
-                                  password: _passwordController.text)
-                              .then((value) {
-                          const   Text('Created New Account');
-                            Navigator.pushNamed(context, '/DashBoard');
-                          }).onError(
-                            (error, stackTrace) {
-                              Text(error.toString());
-                            },
-                          );
-                          // _formkey.currentState!.save();
-                          // ScaffoldMessenger.of(context).showSnackBar(
-                          //   const SnackBar(content: Text('Form is valid')),
-                          // );
-                        } else if (!isCheck) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text(
-                                    'Please accept the terms and conditions')),
-                          );
+                            email: _emailController.text,
+                            password: _passwordController.text,
+                          )
+                              .then((userCredential) {
+                            FirebaseFirestore.instance
+                                .collection('users')
+                                .doc(userCredential.user!.uid)
+                                .set({
+                              'username': _userNameController.text,
+                              'age': _ageController.text,
+                              'country': _countryController.text,
+                              'phone': _phoneNumberController.text,
+                              'email': _emailController.text,
+                              'gender': _selectGender ?? 'Not Specified',
+                            });
+
+                            final userProvider = Provider.of<ProductProvider>(
+                                context,
+                                listen: false);
+                            userProvider.updateUserData(
+                              username: _userNameController.text,
+                              age: _ageController.text,
+                              country: _countryController.text,
+                              phone: _phoneNumberController.text,
+                              email: _emailController.text,
+                              gender: _selectGender ?? 'Not Specified',
+                            );
+                            Navigator.pushReplacementNamed(
+                                context, '/dashboardpage');
+                          }).catchError((error) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('${error.message}')),
+                            );
+                          });
                         }
                       },
                       child: const Text('Create Account'),
@@ -358,7 +385,10 @@ class _RegisterState extends State<Register> {
                         const Flexible(child: Text("Already have an account?")),
                         GestureDetector(
                           onTap: () {
-                            Navigator.pushNamed(context, '/loginpage');
+                            Navigator.pushNamed(
+                              context,
+                              '/loginpage',
+                            );
                           },
                           child: const Text(
                             ' LogIn ',

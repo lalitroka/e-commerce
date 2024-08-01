@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:myshop/screen/bottombar/homepage/homepage.dart';
 import 'package:myshop/screen/bottombar/profile/profile_page.dart';
 import 'package:myshop/screen/bottombar/savefile/saved_page.dart';
-import 'package:myshop/screen/bottombar/shop/shop_page.dart';
 
 class DashBoard extends StatefulWidget {
   const DashBoard({super.key});
@@ -15,7 +14,6 @@ class _DashBoardState extends State<DashBoard> {
   int index = 0;
   final List<Widget> pages = [
     const Homepage(),
-    const ShopPage(),
     const SavedPage(),
     const ProfilePage(),
   ];
@@ -39,7 +37,6 @@ class _DashBoardState extends State<DashBoard> {
         },
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.shopping_bag), label: 'Shop'),
           BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Favorite'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Account'),
         ],

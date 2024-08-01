@@ -1,5 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:myshop/service/provider.dart';
+import 'package:provider/provider.dart';
 
 class LogInPage extends StatefulWidget {
   const LogInPage({super.key});
@@ -10,12 +13,11 @@ class LogInPage extends StatefulWidget {
 
 class _LogInPageState extends State<LogInPage> {
   final TextEditingController _emailController =
-      TextEditingController(text: 'cimex55@gmail.com');
+      TextEditingController(text: 'cimex12@gmail.com');
   final TextEditingController _passwordController =
-      TextEditingController(text: 'Pass@2222');
+      TextEditingController(text: 'Pass@1212');
   final _formKey = GlobalKey<FormState>();
   bool _obscureText = true;
-
 
   void _tooglePasswordVisibility() {
     setState(() {
@@ -146,40 +148,75 @@ class _LogInPageState extends State<LogInPage> {
                     ),
                   ),
                   const SizedBox(height: 30),
-                  Flexible(
-                    child: Container(
-                      width: 100,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          if (_formKey.currentState!.validate()) {
-                            try {
-                              await FirebaseAuth.instance
-                                  .signInWithEmailAndPassword(
-                                      email: _emailController.text,
-                                      password: _passwordController.text)
-                                  .then((value) {
-                                Navigator.pushNamed(context, '/dashboardpage');
-                              });
-                            } on FirebaseAuthException catch (e) {
-                              String errorMessage = 'An error occured';
-                              if (e.code == 'user-not-found') {
-                                errorMessage = "now User found of that emaik";
-                              } else if (e.code == 'wrong-password') {
-                                errorMessage = 'incorrect password';
-                              } else if (e.code == 'invalid-email') {
-                                errorMessage = "incorrect email";
-                              } 
+                  Container(
+                    width: 100,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        if (_formKey.currentState!.validate()) {
+                          try {
+                            UserCredential userCredential = await FirebaseAuth
+                                .instance
+                                .signInWithEmailAndPassword(
+                              email: _emailController.text,
+                              password: _passwordController.text,
+                            );
+                  
+                            // Fetch user data from Firestore
+                            DocumentSnapshot documentSnapshot =
+                                await FirebaseFirestore.instance
+                                    .collection('users')
+                                    .doc(userCredential.user!.uid)
+                                    .get();
+                  
+                            if (documentSnapshot.exists) {
+                              final userData = documentSnapshot.data()
+                                  as Map<String, dynamic>;
+                  
+                              // Update the provider with the fetched user data
+                              final userProvider =
+                                  // ignore: use_build_context_synchronously
+                                  Provider.of<ProductProvider>(context,
+                                      listen: false);
+                              userProvider.updateUserData(
+                                username: userData['username'],
+                                age: userData['age'],
+                                country: userData['country'],
+                                phone: userData['phone'],
+                                email: userData['email'],
+                                gender: userData['gender'],
+                              );
+                                  Navigator.pushReplacementNamed(
+                                  // ignore: use_build_context_synchronously
+                                  context, '/dashboardpage');
+                            } else {
+                              // ignore: use_build_context_synchronously
                               ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text(errorMessage))
+                                const SnackBar(
+                                    content: Text("User data not found")),
                               );
                             }
+                       
+                  
+                          } on FirebaseAuthException catch (e) {
+                            String errorMessage = 'An error occurred';
+                            if (e.code == 'user-not-found') {
+                              errorMessage = "No user found with that email";
+                            } else if (e.code == 'wrong-password') {
+                              errorMessage = 'Incorrect password';
+                            } else if (e.code == 'invalid-email') {
+                              errorMessage = "Incorrect email format";
+                            }
+                            // ignore: use_build_context_synchronously
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(errorMessage)),
+                            );
                           }
-                        },
-                        child: const Text('LogIn'),
-                      ),
+                        }
+                      },
+                      child: const Text('LogIn'),
                     ),
                   ),
                   const SizedBox(height: 10),

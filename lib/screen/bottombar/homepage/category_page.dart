@@ -38,11 +38,12 @@ class _CategoryPageState extends State<CategoryPage>
     super.didChangeDependencies();
     selectedCategory = ModalRoute.of(context)!.settings.arguments as String;
 
-    final uniqueCategories = Provider.of<ProductProvider>(context, listen: false)
-        .products
-        .map((product) => product.category)
-        .toSet()
-        .toList();
+    final uniqueCategories =
+        Provider.of<ProductProvider>(context, listen: false)
+            .products
+            .map((product) => product.category)
+            .toSet()
+            .toList();
     final allCategories = ['All', ...uniqueCategories];
 
     _tabController.dispose();
@@ -82,10 +83,11 @@ class _CategoryPageState extends State<CategoryPage>
                       borderRadius: BorderRadius.all(Radius.circular(25)),
                     ),
                     suffixIcon: IconButton(
-                      onPressed: () => _handleSearch(_searchController.text.trim()),
+                      onPressed: () =>
+                          _handleSearch(_searchController.text.trim()),
                       icon: const Icon(Icons.search_outlined),
                     ),
-                    suffixIconConstraints: const  BoxConstraints(
+                    suffixIconConstraints: const BoxConstraints(
                       minWidth: 0,
                       minHeight: 0,
                     ),
@@ -103,38 +105,33 @@ class _CategoryPageState extends State<CategoryPage>
             body: TabBarView(
               controller: _tabController,
               children: allCategories.map((category) {
+              final filteredProducts =
+                      categoryProduct.products.where((product) {
+                    final title = product.title?.toLowerCase() ?? '';
+                    final query = searchQuery.trim().toLowerCase();
+                    final queryTokens = query.split(RegExp(r'\s+'));
+                    final titleTokens = title.split(RegExp(r'\s+'));
+                    bool matchesQuery =
+                        queryTokens.any((token) => titleTokens.contains(token));
+                    return (product.category == category ||
+                            category == 'All') &&
+                        (searchQuery.isEmpty || matchesQuery);
+                  }).toList();
 
-   final filteredProducts = categoryProduct.products
-    .where((product) {
-      final title = product.title?.toLowerCase() ?? '';
-      final query = searchQuery.trim().toLowerCase();
-      
-      // Tokenize the query and title into words
-      final queryTokens = query.split(RegExp(r'\s+'));
-      final titleTokens = title.split(RegExp(r'\s+'));
-
-      // Check if any token in the query is present in the title
-      bool matchesQuery = queryTokens.any((token) => titleTokens.contains(token));
-
-      return (product.category == category || category == 'All') &&
-             (searchQuery.isEmpty || matchesQuery);
-    })
-    .toList();
-
-                return GridView.builder(
-                  itemCount: filteredProducts.length,
-                  gridDelegate:
-                      const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    mainAxisSpacing: 10,
-                    crossAxisSpacing: 10,
-                    childAspectRatio: 0.75,
-                  ),
-                  itemBuilder: (context, index) {
-                    final productItem = filteredProducts[index];
-                    return _buildProductItem(context, productItem, index);
-                  },
-                );
+                  return GridView.builder(
+                    itemCount: filteredProducts.length,
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      mainAxisSpacing: 10,
+                      crossAxisSpacing: 10,
+                      childAspectRatio: 0.75,
+                    ),
+                    itemBuilder: (context, index) {
+                      final productItem = filteredProducts[index];
+                      return _buildProductItem(context, productItem, index);
+                    },
+                  );
               }).toList(),
             ),
           ),
@@ -198,9 +195,9 @@ class _CategoryPageState extends State<CategoryPage>
                         id: index,
                         title: productItem.title.toString(),
                         description: productItem.description.toString(),
-                        discount: productItem.discount.toString(),
+                        discount: productItem.discount,
                         image: productItem.image.toString(),
-                        price: productItem.price.toString(),
+                        price: productItem.price,
                       );
 
                       await DatabaseService().insertProduct(data);

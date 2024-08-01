@@ -20,9 +20,13 @@ class _ProductViewPageState extends State<ProductViewPage> {
         appBar: AppBar(
           actions: [
             Stack(clipBehavior: Clip.none, children: [
-              const Icon(
-                Icons.shopping_bag_outlined,
-                size: 37,
+              IconButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/shoppage',
+                  arguments:{'productitem': productitem, 'value': value.toString()},
+                  );
+                },
+                icon: const Icon(Icons.shopping_bag_outlined, size: 37),
               ),
               Positioned(
                 bottom: -10,

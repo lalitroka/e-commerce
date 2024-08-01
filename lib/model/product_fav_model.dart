@@ -1,40 +1,39 @@
 class ProductFavModel {
-  int id;
-  String title;
-  String description;
-  String discount;
-  String price;
-  String image;
+  final int id;
+  final String? title;
+  final String? image;
+  final String? description;
+  final double? price;
+  final int? discount;
 
   ProductFavModel({
-     required this.id,
+    required this.id,
     required this.title,
-    required this.description,
-    required this.discount,
-    required this.price,
     required this.image,
+    required this.description,
+    required this.price,
+    required this.discount,
   });
 
   Map<String, dynamic> toMap() {
     return {
       'id': id,
       'title': title,
+      'image': image,
+      'description': description,
       'price': price,
       'discount': discount,
-      'description': description,
-      'image': image,
-
     };
   }
 
-  factory ProductFavModel.fromMap(Map<String, dynamic> dbData) {
+  factory ProductFavModel.fromMap(Map<String, dynamic> map) {
     return ProductFavModel(
-      id: dbData['id'],
-      title: dbData['title'],
-      description: dbData['description'],
-      price: dbData['price'],
-      discount: dbData['discount'],
-      image: dbData['image'],
+      id: map['id'] as int,
+      title: map['title'] as String,
+      image: map['image'] as String,
+      description: map['description'] as String,
+     price: (map['price'] as num?)?.toDouble() ?? 0.0,
+      discount: (map['discount'] as num?)?.toInt() ?? 0,
     );
   }
 }

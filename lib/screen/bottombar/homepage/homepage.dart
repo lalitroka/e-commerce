@@ -2,8 +2,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:myshop/model/advertisemodel.dart';
 import 'package:myshop/model/product_fav_model.dart';
-import 'package:myshop/screen/bottombar/homepage/homewidth.dart';
-import 'package:myshop/service/database_service.dart';
 import 'package:myshop/service/provider.dart'; // Import corrected
 import 'package:provider/provider.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
@@ -19,17 +17,21 @@ class _HomepageState extends State<Homepage> {
   final PageController _pageController = PageController();
   final TextEditingController _searchController = TextEditingController();
 
- void _handleSearch() {
-  final String query = _searchController.text.trim();
-  if (query.isNotEmpty) {
-    Navigator.pushNamed(
-      context,
-      '/categorypage',
-      arguments: query.trim(),
-    );
+  void _handleSearch() {
+    final String query = _searchController.text.trim();
+    if (query.isNotEmpty) {
+      try {
+          Navigator.pushNamed(
+         context,
+        '/categorypage',
+        arguments: query.trim(),
+      );
+      } catch (e) {
+        throw Exception(e);
+      }
+       
+    }
   }
-}
-
 
   @override
   void dispose() {
@@ -41,8 +43,8 @@ class _HomepageState extends State<Homepage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: drawerMethod(),
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 2),
           child: TextField(
@@ -115,116 +117,142 @@ class _HomepageState extends State<Homepage> {
     );
   }
 
-  Padding foryousection() {
-    return Padding(
-      padding: const EdgeInsets.all(5),
-      child: Consumer<ProductProvider>(
-        builder: (BuildContext __, productvalueprovider, Widget? _) {
-          if (productvalueprovider.isLoading) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (productvalueprovider.products.isEmpty) {
-            return const Center(child: Text("No Product found"));
-          } else {
-            return GridView.builder(
-              physics: const NeverScrollableScrollPhysics(),
-              shrinkWrap: true,
-              itemCount: productvalueprovider.products.length,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                mainAxisSpacing: 10,
-                crossAxisSpacing: 10,
-                childAspectRatio: 0.75,
-              ),
-              itemBuilder: (context, index) {
-                final productitem = productvalueprovider.products[index];
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.pushNamed(context, '/productviewpage',
-                        arguments: productitem);
-                  },
-                  child: Container(
-                    color: Colors.cyan[50],
-                    height: 300,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Stack(
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(10),
-                              child: SizedBox(
-                                height: 180,
-                                width: double.infinity,
-                                child: CachedNetworkImage(
-                                  imageUrl: productitem.image!,
-                                  placeholder: (context, url) =>
-                                      const CircularProgressIndicator(),
-                                  errorWidget: (context, url, error) =>
-                                      const Icon(Icons.error),
-                                  fit: BoxFit.cover,
+Padding foryousection() {
+  return Padding(
+    padding: const EdgeInsets.all(5),
+    child: Consumer<ProductProvider>(
+      builder: (BuildContext __, productvalueprovider, Widget? _) {
+        if (productvalueprovider.isLoading) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (productvalueprovider.products.isEmpty) {
+          return const Center(child: Text("No Product found"));
+        } else {
+          return GridView.builder(
+            physics: const NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            itemCount: productvalueprovider.products.length,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              mainAxisSpacing: 10,
+              crossAxisSpacing: 10,
+              childAspectRatio: 0.75,
+            ),
+            itemBuilder: (context, index) {
+              final productitem = productvalueprovider.products[index];
+              return GestureDetector(
+                onTap: () {
+                  Navigator.pushNamed(context, '/productviewpage',
+                      arguments: productitem);
+                },
+                child: Container(
+                  color: Colors.cyan[50],
+                  height: 300,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Stack(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: SizedBox(
+                              height: 180,
+                              width: double.infinity,
+                              child: CachedNetworkImage(
+                                imageUrl: productitem.image!,
+                                placeholder: (context, url) =>
+                                    const CircularProgressIndicator(),
+                                errorWidget: (context, url, error) =>
+                                    const Icon(Icons.error),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                          if (productitem.discount != null)
+                            Positioned(
+                              top: 7,
+                              left: 5,
+                              child: Container(
+                                padding: const EdgeInsets.all(5),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(25),
+                                  color: Colors.cyan[50],
+                                ),
+                                child: Text(
+                                  '${productitem.discount!.toString()}% Off',
+                                  style: const TextStyle(color: Colors.red),
                                 ),
                               ),
                             ),
-                            if (productitem.discount != null)
-                              Positioned(
-                                top: 7,
-                                left: 5,
-                                child: Container(
-                                  padding: const EdgeInsets.all(5),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(25),
-                                    color: Colors.cyan[50],
-                                  ),
-                                  child: Text(
-                                    '${productitem.discount!.toString()}% Off',
-                                    style: const TextStyle(color: Colors.red),
-                                  ),
-                                ),
-                              ),
-                            Positioned(
+                          
+
+
+                         Positioned(
                               top: 10,
                               right: 10,
-                              child: InkWell(
-                                onTap: () async {
-                                  final data = ProductFavModel(
-                                    id: index,
-                                    title: productitem.title.toString(),
-                                    description:
-                                        productitem.description.toString(),
-                                    discount: productitem.discount.toString(),
-                                    image: productitem.image.toString(),
-                                    price: productitem.price.toString(),
+                              child: Consumer<ProductProvider>(
+                                builder: (context, productProvider, child) {
+                                  return FutureBuilder<bool>(
+                                    future: productProvider.isProductFavorite(productitem.id!),
+                                    builder: (context, snapshot) {
+                                      if (snapshot.connectionState == ConnectionState.waiting) {
+                                        return const CircularProgressIndicator();
+                                      } else {
+                                        final isFavorite = snapshot.data ?? false;
+                                        return InkWell(
+                                          onTap: () async {
+                                            await productProvider.toggleFavoriteStatusfunction(ProductFavModel(
+                                              id: productitem.id!,
+                                              title: productitem.title,
+                                              description: productitem.description,
+                                              discount: productitem.discount,
+                                              price: productitem.price,
+                                              image: productitem.image,
+                                            ));
+                                          },
+                                          child: Icon(
+                                            isFavorite
+                                                ? Icons.favorite
+                                                : Icons.favorite_border_outlined,
+                                          ),
+                                        );
+                                      }
+                                    },
                                   );
+        
 
-                                  await DatabaseService().insertProduct(data);
-                                },
-                                child:
-                                    const Icon(Icons.favorite_border_outlined),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          '${productitem.title}',
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        Text(
-                          productitem.price.toString(),
-                          style: const TextStyle(color: Colors.green),
-                        ),
-                      ],
-                    ),
+
+
+
+
+
+                                }
+                          ),
+                         )
+                         
+                        ],
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        '${productitem.title}',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Text(
+                        '\$${productitem.price.toString()}',
+                        style: const TextStyle(color: Colors.green),
+                      ),
+                    ],
                   ),
-                );
-              },
-            );
-          }
-        },
-      ),
-    );
-  }
+                ),
+              );
+            },
+          );
+        }
+      },
+    ),
+  );
+}
+
 
   Padding catetorycontainer() {
     return Padding(
@@ -246,8 +274,7 @@ class _HomepageState extends State<Homepage> {
                 TextButton(
                   onPressed: () {
                     Navigator.pushNamed(context, '/categorypage',
-                    arguments: 
-                     'All');
+                        arguments: 'All');
                   },
                   child: const Text(
                     'SEE ALL',
@@ -257,70 +284,71 @@ class _HomepageState extends State<Homepage> {
               ],
             ),
             Expanded(
-      child: Consumer<ProductProvider>(
-  builder: (BuildContext context, categoryvalue, Widget? child) {
-    if (categoryvalue.isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    } else if (categoryvalue.products.isEmpty) {
-      return const Center(child: Text("No Product found"));
-    } else {
-      final Set<String> uniqueCategoryNames = {};
-      final uniqueCategoryProducts = categoryvalue.products.where((product) {
-        final isUnique = uniqueCategoryNames.add(product.category!);
-        return isUnique;
-      }).toList();
+              child: Consumer<ProductProvider>(
+                builder: (BuildContext context, categoryvalue, Widget? child) {
+                  if (categoryvalue.isLoading) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (categoryvalue.products.isEmpty) {
+                    return const Center(child: Text("No Product found"));
+                  } else {
+                    final Set<String> uniqueCategoryNames = {};
+                    final uniqueCategoryProducts =
+                        categoryvalue.products.where((product) {
+                      final isUnique =
+                          uniqueCategoryNames.add(product.category!);
+                      return isUnique;
+                    }).toList();
 
-      return ListView.separated(
-        separatorBuilder: (context, index) {
-          return const SizedBox(width: 10);
-        },
-        itemCount: uniqueCategoryProducts.length,
-        scrollDirection: Axis.horizontal,
-        itemBuilder: (context, index) {
-          final categoryItem = uniqueCategoryProducts[index];
-          return GestureDetector(
-            onTap: () {
-              Navigator.pushNamed(
-                context,
-                '/categorypage', // Adjust route name if needed
-                arguments: categoryItem.category,
-              );
-            },
-            child: SizedBox(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: CachedNetworkImage(
-                      imageUrl: categoryItem.image!,
-                      placeholder: (context, url) =>
-                          const CircularProgressIndicator(),
-                      errorWidget: (context, url, error) =>
-                          const Icon(Icons.error),
-                      height: 80,
-                      width: 80,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  const SizedBox(height: 3),
-                  Text(
-                    categoryItem.category!,
-                    textAlign: TextAlign.center,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 12),
-                  ),
-                ],
+                    return ListView.separated(
+                      separatorBuilder: (context, index) {
+                        return const SizedBox(width: 10);
+                      },
+                      itemCount: uniqueCategoryProducts.length,
+                      scrollDirection: Axis.horizontal,
+                      itemBuilder: (context, index) {
+                        final categoryItem = uniqueCategoryProducts[index];
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.pushNamed(
+                              context,
+                              '/categorypage', // Adjust route name if needed
+                              arguments: categoryItem.category,
+                            );
+                          },
+                          child: SizedBox(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: CachedNetworkImage(
+                                    imageUrl: categoryItem.image!,
+                                    placeholder: (context, url) =>
+                                        const CircularProgressIndicator(),
+                                    errorWidget: (context, url, error) =>
+                                        const Icon(Icons.error),
+                                    height: 80,
+                                    width: 80,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                                const SizedBox(height: 3),
+                                Text(
+                                  categoryItem.category!,
+                                  textAlign: TextAlign.center,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(fontSize: 12),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  }
+                },
               ),
             ),
-          );
-        },
-      );
-    }
-  },
-),
-            ),
-
           ],
         ),
       ),

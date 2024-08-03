@@ -32,8 +32,13 @@ class ProductProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> refreshProducts() async {
+    await fetchingProduct();
+  }
+
   Future<void> toggleFavoriteStatusfunction(ProductFavModel product) async {
     await DatabaseService().toggleFavoriteStatus(product);
+    refreshProducts();
     notifyListeners();
   }
 
@@ -41,10 +46,9 @@ class ProductProvider extends ChangeNotifier {
     return await DatabaseService().isProductSaved(id);
   }
 
-
 //  for users data
 
- User? _user;
+  User? _user;
 
   User? get user => _user;
 
@@ -71,6 +75,4 @@ class ProductProvider extends ChangeNotifier {
     );
     notifyListeners();
   }
-  
-  }
-
+}

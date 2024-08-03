@@ -34,21 +34,26 @@ class DatabaseService {
   }
 
   Future<void> insertProduct(ProductFavModel productfavModel) async {
+    try {
+      final db = await database;
+      await db.insert(
+        _tableName,
+        productfavModel.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
+
+  Future<void> deleteProduct(int id) async {
     final db = await database;
-    await db.insert(
+    await db.delete(
       _tableName,
-      productfavModel.toMap(),
-      conflictAlgorithm: ConflictAlgorithm.replace,
+      where: 'id = ?',
+      whereArgs: [id],
     );
   }
-Future<void> deleteProduct(int id) async {
-  final db = await database;
-  await db.delete(
-    _tableName,
-    where: 'id = ?',
-    whereArgs: [id],
-  );
-}
 
   Future<List<ProductFavModel>> getProducts() async {
     final db = await database;

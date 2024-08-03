@@ -353,7 +353,7 @@ class _RegisterState extends State<Register> {
                               'country': _countryController.text,
                               'phone': _phoneNumberController.text,
                               'email': _emailController.text,
-                              'gender': _selectGender ?? 'Not Specified',
+                              'gender': _selectGender,
                             });
 
                             final userProvider = Provider.of<ProductProvider>(
@@ -365,7 +365,7 @@ class _RegisterState extends State<Register> {
                               country: _countryController.text,
                               phone: _phoneNumberController.text,
                               email: _emailController.text,
-                              gender: _selectGender ?? 'Not Specified',
+                              gender: _selectGender ?? '',
                             );
                             Navigator.pushReplacementNamed(
                                 context, '/dashboardpage');

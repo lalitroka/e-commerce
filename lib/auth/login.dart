@@ -13,9 +13,9 @@ class LogInPage extends StatefulWidget {
 
 class _LogInPageState extends State<LogInPage> {
   final TextEditingController _emailController =
-      TextEditingController(text: 'cimex12@gmail.com');
+      TextEditingController(text: 'cimex55@gmail.com');
   final TextEditingController _passwordController =
-      TextEditingController(text: 'Pass@1212');
+      TextEditingController(text: 'Pass@2222');
   final _formKey = GlobalKey<FormState>();
   bool _obscureText = true;
 
@@ -148,75 +148,86 @@ class _LogInPageState extends State<LogInPage> {
                     ),
                   ),
                   const SizedBox(height: 30),
-                  Container(
-                    width: 100,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        if (_formKey.currentState!.validate()) {
-                          try {
-                            UserCredential userCredential = await FirebaseAuth
-                                .instance
-                                .signInWithEmailAndPassword(
-                              email: _emailController.text,
-                              password: _passwordController.text,
-                            );
-                  
-                            // Fetch user data from Firestore
-                            DocumentSnapshot documentSnapshot =
-                                await FirebaseFirestore.instance
-                                    .collection('users')
-                                    .doc(userCredential.user!.uid)
-                                    .get();
-                  
-                            if (documentSnapshot.exists) {
-                              final userData = documentSnapshot.data()
-                                  as Map<String, dynamic>;
-                  
-                              // Update the provider with the fetched user data
-                              final userProvider =
-                                  // ignore: use_build_context_synchronously
-                                  Provider.of<ProductProvider>(context,
-                                      listen: false);
-                              userProvider.updateUserData(
-                                username: userData['username'],
-                                age: userData['age'],
-                                country: userData['country'],
-                                phone: userData['phone'],
-                                email: userData['email'],
-                                gender: userData['gender'],
+                  Flexible(
+                    child: Container(
+                      width: 100,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          if (_formKey.currentState!.validate()) {
+                            try {
+                              UserCredential userCredential = await FirebaseAuth
+                                  .instance
+                                  .signInWithEmailAndPassword(
+                                email: _emailController.text,
+                                password: _passwordController.text,
                               );
-                                  Navigator.pushReplacementNamed(
+
+                              DocumentSnapshot documentSnapshot =
+                                  await FirebaseFirestore.instance
+                                      .collection('users')
+                                      .doc(userCredential.user!.uid)
+                                      .get();
+
+                              if (documentSnapshot.exists) {
+                                final userData = documentSnapshot.data()
+                                    as Map<String, dynamic>;
+
+                                // ignore: use_build_context_synchronously
+                                final userProvider =
+                                    // ignore: use_build_context_synchronously
+                                    Provider.of<ProductProvider>(context,
+                                        listen: false);
+
+                                userProvider.updateUserData(
+                                  username: userData['username'],
+                                  age: userData['age'],
+                                  country: userData['country'],
+                                  phone: userData['phone'],
+                                  email: userData['email'],
+                                  gender: userData['gender'],
+                                );
+
+                                if (mounted) {
                                   // ignore: use_build_context_synchronously
-                                  context, '/dashboardpage');
-                            } else {
+                                  Navigator.pushReplacementNamed(
+                                      // ignore: use_build_context_synchronously
+                                      context, '/dashboardpage');
+                                }
+                              } else {
+                                // ignore: use_build_context_synchronously
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content: Text("User data not found")),
+                                );
+                              }
+                            } on FirebaseAuthException catch (e) {
+                              String errorMessage = 'An error occurred';
+                              if (e.code == 'user-not-found') {
+                                errorMessage = "No user found with that email";
+                              } else if (e.code == 'wrong-password') {
+                                errorMessage = 'Incorrect password';
+                              } else if (e.code == 'invalid-email') {
+                                errorMessage = "Incorrect email format";
+                              }
+                              // ignore: use_build_context_synchronously
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text(errorMessage)),
+                              );
+                            } catch (e) {
                               // ignore: use_build_context_synchronously
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                    content: Text("User data not found")),
+                                    content:
+                                        Text("An unexpected error occurred")),
                               );
                             }
-                       
-                  
-                          } on FirebaseAuthException catch (e) {
-                            String errorMessage = 'An error occurred';
-                            if (e.code == 'user-not-found') {
-                              errorMessage = "No user found with that email";
-                            } else if (e.code == 'wrong-password') {
-                              errorMessage = 'Incorrect password';
-                            } else if (e.code == 'invalid-email') {
-                              errorMessage = "Incorrect email format";
-                            }
-                            // ignore: use_build_context_synchronously
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text(errorMessage)),
-                            );
                           }
-                        }
-                      },
-                      child: const Text('LogIn'),
+                        },
+                        child: const Text('LogIn'),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 10),

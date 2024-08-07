@@ -131,41 +131,51 @@ class _RegisterState extends State<Register> {
                     const SizedBox(
                       height: 10,
                     ),
-                    DropdownButtonFormField<String>(
-                      decoration: const InputDecoration(
-                        labelText: 'Select your Gender',
-                        prefixIcon: Icon(Icons.person_outline_rounded),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
-                          borderSide: BorderSide(
-                            width: 2,
-                            color: Colors.blueGrey,
-                          ),
-                        ),
-                        focusColor: Colors.amberAccent,
-                      ),
-                      value: _selectGender ?? 'Male',
-                      items: ['Male', 'Female', 'Other'].map((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
-                      onChanged: (newValue) {
-                        setState(() {
-                          _selectGender = newValue;
-                        });
-                      },
-                      validator: (value) {
-                        if (value == null) {
-                          return 'Please select your gender';
-                        }
-                        return null;
-                      },
-                    ),
+                  
+
+                         
+                         DropdownButtonFormField<String>(
+  decoration: const InputDecoration(
+    labelText: 'Select your Gender',
+    prefixIcon: Icon(Icons.person_outline_rounded),
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.all(Radius.circular(10)),
+    ),
+    enabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.all(Radius.circular(10)),
+      borderSide: BorderSide(
+        width: 2,
+        color: Colors.blueGrey,
+      ),
+    ),
+    focusColor: Colors.amberAccent,
+  ),
+  value: _selectGender, // Handle null values
+  items: ['Male', 'Female', 'Other'].map((String value) {
+    return DropdownMenuItem<String>(
+      value: value,
+      child: Text(value),
+    );
+  }).toList(),
+  onChanged: (newValue) {
+    setState(() {
+      _selectGender = newValue;
+    });
+  },
+  validator: (value) {
+    if (value == null || value.isEmpty) {
+      return 'Please select your gender';
+    }
+    return null;
+  },
+),
+
+
+
+
+
+
+
                     const SizedBox(
                       height: 10,
                     ),
@@ -335,49 +345,67 @@ class _RegisterState extends State<Register> {
                     const SizedBox(
                       height: 10,
                     ),
-                    ElevatedButton(
-                      onPressed: () {
-                        if (_formkey.currentState!.validate() && isCheck) {
-                          FirebaseAuth.instance
-                              .createUserWithEmailAndPassword(
-                            email: _emailController.text,
-                            password: _passwordController.text,
-                          )
-                              .then((userCredential) {
-                            FirebaseFirestore.instance
-                                .collection('users')
-                                .doc(userCredential.user!.uid)
-                                .set({
-                              'username': _userNameController.text,
-                              'age': _ageController.text,
-                              'country': _countryController.text,
-                              'phone': _phoneNumberController.text,
-                              'email': _emailController.text,
-                              'gender': _selectGender,
-                            });
 
-                            final userProvider = Provider.of<ProductProvider>(
-                                context,
-                                listen: false);
-                            userProvider.updateUserData(
-                              username: _userNameController.text,
-                              age: _ageController.text,
-                              country: _countryController.text,
-                              phone: _phoneNumberController.text,
-                              email: _emailController.text,
-                              gender: _selectGender ?? '',
-                            );
-                            Navigator.pushReplacementNamed(
-                                context, '/dashboardpage');
-                          }).catchError((error) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('${error.message}')),
-                            );
-                          });
-                        }
-                      },
-                      child: const Text('Create Account'),
-                    ),
+ 
+
+
+
+
+
+
+                    ElevatedButton(
+  onPressed: () {
+    if (_formkey.currentState!.validate() && isCheck) {
+      FirebaseAuth.instance
+          .createUserWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      )
+          .then((userCredential) {
+        FirebaseFirestore.instance
+            .collection('users')
+            .doc(userCredential.user!.uid)
+            .set({
+          'username': _userNameController.text.trim(),
+          'age': _ageController.text.trim(),
+          'country': _countryController.text.trim(),
+          'phone': _phoneNumberController.text.trim(),
+          'email': _emailController.text.trim(),
+          'gender': _selectGender ?? 'Not Specified', // Provide default value
+        });
+
+        final userProvider = Provider.of<ProductProvider>(
+            context,
+            listen: false);
+        userProvider.updateUserData(
+          username: _userNameController.text.trim(),
+          age: _ageController.text.trim(),
+          country: _countryController.text.trim(),
+          phone: _phoneNumberController.text.trim(),
+          email: _emailController.text.trim(),
+          gender: _selectGender ?? 'Not Specified', // Provide default value
+        );
+
+        Navigator.pushReplacementNamed(
+            context, '/dashboardpage');
+      }).catchError((error) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${error.message}')),
+        );
+      });
+    }
+  },
+  child: const Text('Create Account'),
+),
+
+
+
+
+                          
+
+
+
+
                     const SizedBox(height: 20),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
